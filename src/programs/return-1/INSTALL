@@ -1,0 +1,36 @@
+Dependencies:
+	Runtime:
+		x86_64 processor
+		Linux kernel
+		/dev/fb0
+	Compile time:
+		C compiler
+		Assembler (Yasm,Nasm)
+
+Compiling and installing:
+	To compile The Return, use the following command:
+	make
+
+	To install The Return, use the folling command*:
+	make install PREFIX=/usr
+
+	*be sure to adjust PREFIX to reflect the location you wish to install to.
+	*also, this command may need to be run as root
+
+Running:
+	To run the game (after installing) type the following command*:
+	Return /dev/input/event5
+
+	or*:
+	/usr/games/Return /dev/input/event5
+
+	To run the game without installing*:
+	./Return /dev/input/event5
+
+	*be sure to adjust this command to reflect your keyboard event handler
+	*this information can be found with the following command:
+		cat /proc/bus/input/devices
+	*then search for your keyboard and see which event device handles it
+
+Please note that this game renders to the Linux framebuffer device, not an X11 
+window. See README for more information.

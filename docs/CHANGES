@@ -1,0 +1,33 @@
+program loading works (again)! - 04/24/2016
+
+build system contains a rootfs folder which gets copied into the built filesytem
+
+cat command
+
+stat command
+
+yeah, backup2
+
+MBR code modified to load kernel from sector map in second sector - 04/18/2016
+
+bootmap application created to create sector map of kernel
+
+Directories in ext2 are listable (yeah)
+
+characters are now 8x12 to support skull and crossbones
+
+Block char replaced with a skull and crossbones
+
+Pure64 and kernel loaded from sector 32 instead of 16
+
+ext2 driver started
+
+bmfs driver removed due to it not being good
+
+UI reworded and recolored
+
+Graphics enabled by default
+
+Redesigned build system - now using makefiles
+
+Forked from BareMetalOS

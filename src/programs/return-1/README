@@ -1,0 +1,42 @@
+The Return
+by Philip Rushik (prushik@betteros.org)
+
+The Return is a game featuring old school style graphics and arcade style 
+gameplay.
+The player takes control of a spaceship (like the spacecraft from the classic 
+game of asteroids) and must shoot a variety of targets and enemies. The main 
+difference is that the entire game takes place not in space, but on a planet, 
+and thus, everything is subject to gravity, including the player, enemies, and 
+even missiles. This makes aiming more difficult as the player must also account 
+for gravity. In addition, missiles take approximately one second to become 
+"armed", and are harmless before they become armed. "Armed" status is indicated 
+in-game by the warhead color changing to red.
+
+The Return features six gameplay modes. The first is simple target practice to 
+get used to the game controls. The second is "Asteroids Mode", where the player 
+must destroy asteroids. The third is "Missile Command Mode", where the player 
+must destroy ground based turrets, and shoot down incoming scud missiles. The 
+fourth mode is "Tank Mode", where the player must destroy ground based vehicles 
+while avoiding their return fire. The fifth mode is "Airships Mode" where the 
+player must battle turrets hoisted into the air by lighter-than-air balloons. 
+The sixth, and final game mode is called "Everything Mode". In Everything Mode, 
+the player will encounter waves of enemies, but each wave will be different. 
+Later waves of Everything Mode can even include combinations of enemies such as 
+tanks and airships at once.
+
+
+The Return is not a usual game, and it is programmed in an unusual style. The 
+Return has no userspace dependencies, and can run with nothing more than a 
+Linux kernel. Not even X is required, as a matter of fact, in most systems, you 
+must leave X in order to play the game.
+To play The Return, your system must be 
+set up in slightly unusual way. First of all, your Linux Kernel must provide a 
+framebuffer device located at /dev/fb0. Second, you must know which event 
+device in /dev/input/ is handling your computer's keyboard, and specify this 
+on the command line when running the game. Finally, you must leave X in order 
+to play the game. I recommend running the game from the command line as normal, 
+either from X or from a tty, and then switching to an unused virtual terminal 
+(such as tty8 via CTRL+ALT+F8) to play the game, this will prevent the output 
+of the keyboard causing the terminal to do things while you are playing.
+
+For instrustions on compiling and installing the game, see the file: INSTALL
