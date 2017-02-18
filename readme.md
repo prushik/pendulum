@@ -1,135 +1,52 @@
-BareMetal OS build scripts
+Pendulum 
 ==========================
 
-The easiest way to create a BareMetal OS build environment. These scripts will download and compile all of the components needed for using BareMetal OS.
+Pendulum is a fork of BareMetal OS, replacing the problematic parts of the operating system with more reasonable ones.
+Pendulum runs on the ext2 file system instead of the very limited and difficult to work with BMFS.
+Pendulum's interface has also been improved, commands are more remiscent of Unix commands instead of with DOS-like commands in BareMetal.
+Pendulum's boot strategy has been significantly improved. The kernel can now be installed as a regular file in the file system, and the build system will create code to load the kernel correctly.
+Pendulum has a redesigned build system based on simple makefiles, making compilation as simple as typing make.
 
 
 Prerequisites
 -------------
 
-NASM (Assembly compiler) is required to build the loader and OS, as well as the apps writen in Assembly. QEMU (computer emulator) is required if you plan on running the OS for quick testing. GCC (C compiler) is required for building the BMFS disk utility, the C applications, as well as Newlib. Git is used for pulling the software from GitHub. Automake is used to build the BMFS disk utility.
-
-In Ubuntu this can be completed with the following command:
-
-	sudo apt-get install nasm qemu gcc git automake
-
-There are additional dependencies if you are planning on compiling Newlib. They can be installed with the following command:
-
-	sudo apt-get install autoconf libtool sed gawk bison flex m4 texinfo texi2html unzip make
+In order to build Pendulum, the following host software is required:
+	make - The Pendulum build system uses make
+	yasm - Most of Pendulum is built with yasm
+	nasm - unfortunately, nasm is still required to build part of the bootloader, PURE64, due to features which yasm does not yet support
+	gcc (or another C compiler) - Although not required for building Pendulum itself, some host utilities (e.g. bootmap) are written in C
+	Linux - Required for running bootmap (needed to create bootable image)
 
 
-Initial configuration
----------------------
-
-	git clone https://github.com/ReturnInfinity/BareMetal.git
-	cd BareMetal
-	./setup.sh
-
-setup.sh automatically runs build, format, and install
-
-
-Rebuilding the source code
+Building the source code
 --------------------------
 
-	./build.sh
+	make
 
 
-Installing to the disk image
+Creating disk image
 ----------------------------
 
-	./install.sh
+	make ext2
 
 
-Test the install with QEMU
+Test the image with Qemu
 --------------------------
 
-	./run.sh
+	make run
 
 
-Build a VMDK disk image for VMware
-----------------------------------
-
-	./vmdk.sh
-
-
-Build a VDI disk image for VirtualBox
--------------------------------------
-
-	./vdi.sh
-
-The VDI script rewrites the disk ID with the contents of VDI_UUID.bin to avoid the disk warning in VirtualBox.
-
-
-Programs in Assembly
+Using Pendulum 
 --------------------
 
-Automatic:
+Once Pendulum finishes booting, you will presented with a prompt ('>'), at this prompt, you can type the following built-in commands:
+	help - displays a list of available built-in commands
+	ver - Display Pendulum version
+	ls - list contents of current directory
+	clear - clear screen
+	stat <file> - display information about file 
+	cat <file> - display contents of text file
+	reboot - reboot computer
 
-	./app.sh sysinfo
-	./run.sh
-
-Manual:
-
-	cd src/BareMetal-OS/programs/
-	nasm sysinfo.asm -o ../../../bin/sysinfo.app
-	cd ../../../bin
-	./bmfs bmfs.image create sysinfo.app 2
-	./bmfs bmfs.image write sysinfo.app
-	cd ..
-	./run.sh
-
-
-BareMetal OS should be running in the QEMU virtual machine and you should see a '>' prompt. You can now run the application by typing
-
-	sysinfo.app
-
-
-Programs in C
--------------
-
-C programs can be compiled to take advantage of the BareMetal system calls. Standard ANSI C calls are available via Newlib (see the Newlib section below).
-
-Automatic:
-
-	./appc.sh helloc
-	./run.sh
-
-Manual:
-
-	cd src/
-	gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o hello.o helloc.c
-	gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o libBareMetal.o libBareMetal.c
-	ld -T app.ld -o bin/helloc.app helloc.o libBareMetal.o
-	cd bin
-	./bmfs bmfs.image create helloc.app 2
-	./bmfs bmfs.image write helloc.app
-	cd ..
-	./run.sh
-
-BareMetal OS should be running in the QEMU virtual machine and you should see a '>' prompt. You can now run the application by typing
-
-	helloc.app
-
-
-Compiling Newlib
-----------------
-
-	./newlib.sh
-
-The Newlib script will build the Newlib library and also compile a test application (test.app) to verify the build process.
-
-The test application can also be built manually:
-
-	cd newlib
-	gcc -I newlib-2.2.0/newlib/libc/include/ -c test.c -o test.o
-	ld -T app.ld -o test.app crt0.o test.o libc.a
-	cp test.app ../bin
-	cd ../bin
-	./bmfs bmfs.image create test.app 2
-	./bmfs bmfs.image write test.app
-	cd ..
-	./run.sh
-
-BareMetal OS should be running in the QEMU virtual machine and you should see a '>' prompt. You can now run the application by typing
-
-	test.app
+If a command is not recognized as a built-in command, Pendulum will search the current directory for a file with the given name and attempt to execute it
