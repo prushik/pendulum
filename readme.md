@@ -12,11 +12,11 @@ Prerequisites
 -------------
 
 In order to build Pendulum, the following host software is required:
-	make - The Pendulum build system uses make
-	yasm - Most of Pendulum is built with yasm
-	nasm - unfortunately, nasm is still required to build part of the bootloader, PURE64, due to features which yasm does not yet support
-	gcc (or another C compiler) - Although not required for building Pendulum itself, some host utilities (e.g. bootmap) are written in C
-	Linux - Required for running bootmap (needed to create bootable image)
+	- make - The Pendulum build system uses make
+	- yasm - Most of Pendulum is built with yasm
+	- nasm - unfortunately, nasm is still required to build part of the bootloader, PURE64, due to features which yasm does not yet support
+	- gcc (or another C compiler) - Although not required for building Pendulum itself, some host utilities (e.g. bootmap) are written in C
+	- Linux - Required for running bootmap (needed to create bootable image)
 
 
 Building the source code
@@ -41,12 +41,12 @@ Using Pendulum
 --------------------
 
 Once Pendulum finishes booting, you will presented with a prompt ('>'), at this prompt, you can type the following built-in commands:
-	help - displays a list of available built-in commands
-	ver - Display Pendulum version
-	ls - list contents of current directory
-	clear - clear screen
-	stat <file> - display information about file 
-	cat <file> - display contents of text file
-	reboot - reboot computer
+	- help - displays a list of available built-in commands
+	- ver - Display Pendulum version
+	- ls - list contents of current directory
+	- clear - clear screen
+	- stat <file> - display information about file 
+	- cat <file> - display contents of text file
+	- reboot - reboot computer
 
 If a command is not recognized as a built-in command, Pendulum will search the current directory for a file with the given name and attempt to execute it
