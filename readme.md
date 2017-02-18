@@ -12,6 +12,7 @@ Prerequisites
 -------------
 
 In order to build Pendulum, the following host software is required:
+
 	- make - The Pendulum build system uses make
 	- yasm - Most of Pendulum is built with yasm
 	- nasm - unfortunately, nasm is still required to build part of the bootloader, PURE64, due to features which yasm does not yet support
@@ -28,6 +29,7 @@ Building the source code
 Creating disk image
 ----------------------------
 
+	mkdir mp
 	make ext2
 
 
@@ -41,6 +43,7 @@ Using Pendulum
 --------------------
 
 Once Pendulum finishes booting, you will presented with a prompt ('>'), at this prompt, you can type the following built-in commands:
+
 	- help - displays a list of available built-in commands
 	- ver - Display Pendulum version
 	- ls - list contents of current directory
