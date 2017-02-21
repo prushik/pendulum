@@ -9,14 +9,15 @@
 USE64
 ORG 0x0000000000100000
 
-%DEFINE BAREMETALOS_VER 'v0.0 (April 14, 2016)', 13, 'Copyright (C) 2016 BetterOS.org', 13, 0
-%DEFINE BAREMETALOS_API_VER 2
+%DEFINE PENDULUM_VER 'v0.1 (February 19, 2017)', 13, 'Copyright (C) 2016 BetterOS.org', 13, 0
+%DEFINE PENDULUM_API_VER 7
 
 kernel_start:
-	jmp start			; Skip over the function call index
+	jmp start			; Skip over the system call index
 	nop
-	db 'baremetal'
+	db 'pendulum'
 
+	; system call numbers defined below
 	align 16
 	dq os_output			; 0x0010
 	dq os_output_chars		; 0x0018
@@ -30,16 +31,17 @@ kernel_start:
 	dq os_mem_release		; 0x0058
 	dq os_ethernet_tx		; 0x0060
 	dq os_ethernet_rx		; 0x0068
-	dq os_file_open			; 0x0070
-	dq os_file_close		; 0x0078
-	dq os_file_read			; 0x0080
-	dq os_file_write		; 0x0088
-	dq os_file_seek			; 0x0090
-	dq os_file_query		; 0x0098
-	dq os_file_create		; 0x00A0
-	dq os_file_delete		; 0x00A8
-	dq os_system_config		; 0x00B0
-	dq os_system_misc		; 0x00B8
+	dq os_file_get_inode	; 0x0070
+	dq os_file_open			; 0x0078
+	dq os_file_close		; 0x0080
+	dq os_file_read			; 0x0088
+	dq os_file_write		; 0x0090
+	dq os_file_seek			; 0x0098
+	dq os_file_query		; 0x00A0
+	dq os_file_create		; 0x00A8
+	dq os_file_delete		; 0x00B0
+	dq os_system_config		; 0x00B8
+	dq os_system_misc		; 0x00C0
 	align 16
 
 start:

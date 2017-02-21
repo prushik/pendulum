@@ -77,30 +77,12 @@ struc ext2_directory
 	.name				resb 1 ; this is actually ext2_directory.name_size bytes wide
 endstruc
 
-blocksize		dd 1024		; blocksize in byte
-blocksectors	dd 2		; blocksize in sectors
-desc_table		dd 0		; start of block group descriptor table
-pwd				dd 2		; inode # of current directory
-
-superblock: istruc ext2_superblock
-iend
-;resb 940
-resb 428
-
-descriptor: istruc ext2_descriptor
-iend
-resb 480
-
-inode: istruc ext2_inode
-iend
-resb 384
-
 align 16
 db 'DEBUG: EXT2     '
 align 16
 
 ext2_blocksize:
-	mov	eax, [superblock+ext2_superblock.log_block_size]
+	mov	eax, [fs_superblock+ext2_superblock.log_block_size]
 	mov	edx, 1024
 	mov	ecx, eax
 	sal	edx, cl

@@ -15,13 +15,21 @@ db 'DEBUG: FILESYS  '
 align 16
 
 
+os_file_get_inode:
+	mov r14,rsi
+	mov rsi,rdi
+	call os_ext2_find_inode
+	mov rdi,rax
+	mov rax,r14
+	jmp os_ext2_search_directory
+
 ; -----------------------------------------------------------------------------
 ; os_file_open -- Open a file on disk
 ; IN:	RSI = File name (zero-terminated string)
 ; OUT:	RAX = File I/O handler number, 0 on error
 ;	All other registers preserved
 os_file_open:
-	jmp os_ext2_file_open
+	jmp os_ext2_find_inode
 ; -----------------------------------------------------------------------------
 
 

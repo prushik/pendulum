@@ -53,3 +53,10 @@ Once Pendulum finishes booting, you will presented with a prompt ('>'), at this 
 	- reboot - reboot computer
 
 If a command is not recognized as a built-in command, Pendulum will search the current directory for a file with the given name and attempt to execute it
+
+
+Developing Software for Pendulum
+---------------------------------
+
+Pendulum (like BareMetal) is not a general purpose operating system. To use Pendulum to its full potential, will be writing software to run on it.
+Pendulum's system calls are documented in the docs/ directory. Note that while many system calls are compatible with BareMetal, many are also different, particularly the filesystem syscalls.

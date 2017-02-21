@@ -37,7 +37,7 @@ itostr:
 	mov	BYTE [rdi+rax], 0
 	ret
 
-; print rdi to the screen
+; print rsi to the screen
 write_decimal: 
 .LFB1:
 	push	r9
@@ -154,7 +154,7 @@ os_command_line:
 ;	; Program found, load and execute
 ;	call os_file_read
 ;	call os_file_close
-;	call programlocation		; Call the program just loaded
+;	call programlocation	; Call the program just loaded
 	jmp os_command_line		; Jump back to the CLI on program completion
 
 fail:					; We didn't get a valid command or program name
@@ -182,7 +182,7 @@ ls:
 	mov rdi, cli_temp_string
 	mov rsi, rdi
 
-	mov esi,[pwd]
+	mov esi,[fs_pwd]
 	call os_ext2_find_inode
 	mov rdi,rax
 	call os_ext2_list_directory
@@ -195,7 +195,7 @@ ls:
 	jmp os_command_line
 
 cd:
-	mov esi,[pwd]				;
+	mov esi,[fs_pwd]			;
 	call os_ext2_find_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
@@ -209,12 +209,12 @@ cd:
 	test rax,rax
 	jz os_command_line			; if no match is found, don't change
 
-	mov DWORD[pwd],eax				; set new working dir
+	mov DWORD[fs_pwd],eax		; set new working dir
 
 	jmp os_command_line
 
 stat:
-	mov esi,[pwd]				;
+	mov esi,[fs_pwd]			;
 	call os_ext2_find_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
@@ -235,7 +235,7 @@ stat:
 	jmp os_command_line
 
 exec:
-	mov esi,[pwd]				;
+	mov esi,[fs_pwd]			;
 	call os_ext2_find_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
@@ -258,7 +258,7 @@ exec:
 	jmp os_command_line
 
 cat:
-	mov esi,[pwd]				;
+	mov esi,[fs_pwd]			;
 	call os_ext2_find_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
@@ -359,7 +359,7 @@ exit:
 ; Strings
 	help_text		db 'Built-in commands: clear, debug, ls, help, reboot, ver, exit, stat, cat, ext, testzone', 13, 0
 	not_found_msg	db 'Command or program not found', 13, 0
-	version_msg		db 'Pendulum ', BAREMETALOS_VER, 13, 0
+	version_msg		db 'Pendulum ', PENDULUM_VER, 13, 0
 
 	cls_string		db 'clear', 0
 	dir_string		db 'ls', 0

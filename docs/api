@@ -1,6 +1,6 @@
-# BareMetal OS API #
+# Pendulum #
 
-Version 0.6.0 - April 17, 2013
+Version 0.7 - Feburary, 2017
 
 ### Contents
 
@@ -278,6 +278,7 @@ Notes: BareMetal OS does not keep a buffer of received packets. This means that 
 
 
 ## File
+NOTE: Pendulum handles files differently than BareMetal does.
 
 
 ### b\_file\_open
