@@ -16,12 +16,13 @@ align 16
 
 
 os_file_get_inode:
-	mov r14,rsi
-	mov rsi,rdi
-	call os_ext2_find_inode
-	mov rdi,rax
-	mov rax,r14
-	jmp os_ext2_search_directory
+;	mov r14,rsi
+;	mov rsi,rdi
+	jmp os_ext2_read_inode
+;	call os_ext2_find_inode
+;	mov rdi,rax
+;	mov rax,r14
+;	jmp os_ext2_search_directory
 
 ; -----------------------------------------------------------------------------
 ; os_file_open -- Open a file on disk
@@ -83,7 +84,7 @@ os_file_seek:
 ; OUT:	RCX = Size in bytes
 ;	Carry is set if the file was not found or an error occurred
 os_file_query:
-	jmp os_ext2_file_query
+	jmp os_ext2_file_stat
 ; -----------------------------------------------------------------------------
 
 

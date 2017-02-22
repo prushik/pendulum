@@ -199,8 +199,8 @@ os_ext2_find_inode:
 
 	; rax = memory location of correct group descriptor = group in sector *32 + descriptor
 	; rsi = inode in group
-	mov eax,32 
-	mul r8d
+	shl r8,5
+	mov rax,r8
 
 	add rax,fs_descriptor
 
@@ -229,22 +229,123 @@ os_ext2_find_inode:
 	call readsectors
 
 	; multiply by size of inode struct to get the correct inode
-	mov rdx,r8
-	mov eax,128
-	mul r8
+;	mov rdx,r8
+;	mov eax,128
+	shl r8,7
+	mov rax,r8
 
 	add rax,fs_pwd_inode
 
-;	push rsi
-;	push rax
-;	push rdx
-;	mov rsi,rax
-;	mov esi,DWORD[rax+ext2_inode.block_pointer]
-;	call write_decimal
-;	pop rdx
-;	pop rax
-;	pop rsi
+	pop r8
+	pop rcx
+	pop rdi
+	pop rdx
+	pop rsi
+	ret
 
+
+; IN:	rdi = inode number
+; OUT:	rax = group number of inode
+;		rdx = inode offset in group
+os_ext2_inode_groups:
+	; rax = group of inode = (inode_number-1) / inodes_per_group
+	; rdx = inode in group = (inode_number-1) % inodes_per_group
+	sub rdi,1	; inode numbers start at 1
+	mov rax,rdi
+	xor edx,edx
+	div DWORD [fs_superblock+ext2_superblock.n_inodes_group];
+	ret
+
+; IN:	rax = group number
+; OUT:	rax = sector number of group
+;		rdx = group offset in sector
+os_ext2_group_sectors:
+	; rax = sector of group = group/16
+	; rdx = group in sector = group%16
+	xor	edx, edx
+	mov rdi,16
+	div edi		; 16 is 512/32 = number of groups per sector
+	add eax,DWORD[fs_desc_table] ; rax = sector containing blockgroup descriptor
+	ret
+
+;------------------------------------------------------------------------------
+; IN:	rdi = inode number
+;		rsi = memory address to store inode struct
+; OUT:	rax = inode address
+;
+os_ext2_read_inode:
+	push rsi
+	push rdx
+	push rdi
+	push rcx
+	push r8
+	push r9
+
+	mov r9,rsi
+
+	; rax = group of inode
+	; rdx = inode in group
+	call os_ext2_inode_groups
+
+	mov rsi,rdx ; save inodeN_in_group
+
+	; rax = sector of group
+	; rdx = group in sector
+	; rsi = inode in group
+	call os_ext2_group_sectors
+
+	mov r8,rdx		;save group in sector
+
+	; read sector containing group
+	; rax = sector of n
+	mov rcx,1		; one sector
+	xor rdx,rdx		; disk 0
+	lea rdi,[fs_descriptor]
+	call readsectors	;readsectors(rax sector_no,rcx n_sectors,rdx disk_no,rdi *buffer)
+
+	; rax = memory location of correct group descriptor = group in sector *32 + descriptor
+	; rsi = inode in group
+	shl r8,5
+	mov rax,r8
+
+	add rax,fs_descriptor
+
+	; rax = sector of inode table
+	mov r8,rsi
+	mov rsi,[rax+ext2_descriptor.inode_table]
+	xor rdx,rdx
+	mov eax,[fs_blocksectors]
+	mul esi
+
+	;need to divide inode in group by 4(inodes per sector)
+	;then get that sector and use remainder for inode in sector
+	mov rcx,rax
+	mov rax,r8
+	mov rsi,4
+	xor rdx,rdx
+	div esi
+	add rax,rcx
+	mov r8,rdx
+	; rdx should be inode in sector
+
+	mov rcx,1
+	xor rdx,rdx
+	lea rdi,[fs_pwd_inode]
+	call readsectors
+
+	; multiply by size of inode struct to get the correct inode
+	shl r8,7
+	mov rax,r8
+
+	add rax,fs_pwd_inode
+
+	; copy to user supplied struct
+	mov rdi,r9
+	mov rsi,rax
+	mov rdx,128
+	call os_memcpy
+
+	pop r9
 	pop r8
 	pop rcx
 	pop rdi
@@ -749,33 +850,6 @@ os_ext2_file_seek:
 ; -----------------------------------------------------------------------------
 
 
-; -----------------------------------------------------------------------------
-; os_ext2_file_internal_query -- Search for a file name and return information
-; IN:	RSI = Pointer to file name
-; OUT:	RAX = Staring block number
-;	RBX = Offset to entry
-;	RCX = File size in bytes
-;	RDX = Reserved blocks
-;	Carry set if not found. If carry is set then ignore returned values
-os_ext2_file_internal_query:
-	push rdi
-
-	pop rdi
-	ret
-; -----------------------------------------------------------------------------
-
-
-; -----------------------------------------------------------------------------
-; os_ext2_file_query -- Search for a file name and return information
-; IN:	RSI = Pointer to file name
-; OUT:	RCX = File size in bytes
-;	Carry set if not found. If carry is set then ignore returned values
-os_ext2_file_query:
-	push rdi
-
-	pop rdi
-	ret
-; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------

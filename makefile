@@ -6,19 +6,16 @@ SUDO=sudo
 all: src/pure64/pure64 src/kernel/kernel64
 
 src/kernel/kernel64: 
-	make -C src/kernel/
+	make -C src/kernel
 
 src/pure64/pure64: 
 	make -C src/pure64
 
 util/bootmap:
 	make -C util
-#deprecated
-#bmfs_mbr: pure64
-#	cp src/pure64/bmfs_mbr .
 
-#run:
-#	qemu-system-x86_64 -vga std -smp 8 -m 256 -drive id=disk,file=bin/bmfs.img,if=none,format=raw -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0 -name "BareMetal OS" -net nic,model=i82551
+programs:
+	make -C src/programs
 
 run: bin/ext2.img
 	qemu-system-x86_64 -vga std -smp 8 -m 256 -drive id=disk,file=bin/ext2.img,if=none,format=raw -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0 -name "PendulumOS" -net nic,model=i82551

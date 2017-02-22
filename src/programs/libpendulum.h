@@ -8,8 +8,33 @@
 //
 // This allows for a C program to access OS functions available in Pendulum
 // =============================================================================
-#ifndef _LIBBAREMETAL_H
-#define _LIBBAREMETAL_H 1
+#ifndef _PENDULUM_H
+#define _PENDULUM_H 1
+
+struct kern_ext2_inode
+{
+	unsigned short	type;
+	unsigned short	uid;
+	unsigned int	l_size,
+					a_time,
+					c_time,
+					m_time,
+					d_time;
+	unsigned short	gid;
+	unsigned short	n_links;
+	unsigned int	n_sectors;
+	unsigned int	flags;
+	unsigned int	os_reserved1;
+	unsigned int	block_pointer[12];
+	unsigned int	single_indirect;
+	unsigned int	double_indirect;
+	unsigned int	triple_indirect;
+	unsigned int	generation;
+	unsigned int	xattr;
+	unsigned int	h_size;
+	unsigned int	frag_block;
+	unsigned int	os_reserved2[3];
+};
 
 void b_output(const char *str);
 void b_output_chars(const char *str, unsigned long nbr);
@@ -28,7 +53,8 @@ unsigned long b_mem_release(unsigned long *mem, unsigned long nbr);
 void b_ethernet_tx(void *mem, unsigned long len);
 unsigned long b_ethernet_rx(void *mem);
 
-unsigned long b_file_get_inode(unsigned long inode, const unsigned char *name);
+unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf);
+//unsigned long b_file_get_inode(unsigned long inode, const unsigned char *name);
 unsigned long b_file_open(unsigned long inode);
 unsigned long b_file_close(unsigned long handle);
 unsigned long b_file_read(unsigned long handle, void *buf, unsigned int count);
@@ -64,8 +90,5 @@ void b_system_misc(unsigned long function, void* var1, void* var2);
 #define debug_dump_rax 5
 #define get_argc 6
 #define get_argv 7
-
-// =============================================================================
-// EOF
 
 #endif

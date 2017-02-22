@@ -480,7 +480,7 @@ next_stack:
 	jmp ap_clear			; jump to AP clear code
 
 
-int_string00 db 'BareMetal OS - CPU ', 0
+int_string00 db 'Pendulum - CPU ', 0
 int_string01 db ' - Interrupt ', 0
 ; Strings for the error messages
 exc_string db 'Unknown Fatal Exception!', 0

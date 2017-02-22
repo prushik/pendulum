@@ -25,6 +25,7 @@
 //
 // =============================================================================
 
+#include "libpendulum.h"
 
 void b_output(const char *str)
 {
@@ -104,10 +105,10 @@ unsigned long b_ethernet_rx(void *mem)
 	return tlong;
 }
 
-unsigned long b_file_get_inode(unsigned long inode, const unsigned char *name)
+unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf)
 {
 	unsigned long tlong;
-	asm volatile ("call *0x00100070" : "=a"(tlong) : "a"(inode),"S"(name));
+	asm volatile ("call *0x00100070" : "=a"(tlong) : "D"(inode),"S"(buf));
 	return tlong;
 }
 

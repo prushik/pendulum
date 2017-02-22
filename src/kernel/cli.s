@@ -258,8 +258,9 @@ exec:
 	jmp os_command_line
 
 cat:
-	mov esi,[fs_pwd]			;
-	call os_ext2_find_inode		; find inode of pwd (working dir)
+	mov edi,[fs_pwd]			;
+	lea rsi,[ext2_directory]	;
+	call os_ext2_read_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
 
