@@ -42,6 +42,7 @@ kernel_start:
 	dq os_file_delete		; 0x00B0
 	dq os_system_config		; 0x00B8
 	dq os_system_misc		; 0x00C0
+	dq os_file_inode_read	; 0x00C8
 	align 16
 
 start:
@@ -151,12 +152,6 @@ ap_process:				; Set the status byte to "Busy" and run the code
 %include "sysvar.s"			; Include this last to keep the read/write variables away from the code
 
 times 16384-($-$$) db 0			; Set the compiled kernel binary to at least this size in bytes
-
-resb 8196
-
-directory: istruc ext2_directory
-iend
-resb 8183
 
 ; =============================================================================
 ; EOF

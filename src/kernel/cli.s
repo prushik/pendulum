@@ -274,10 +274,10 @@ cat:
 	call os_ext2_find_inode		; find inode of what we want
 
 	mov rdi,rax
-	mov rdx,directory
+	mov rdx,programlocation
 	call os_ext2_file_load
 
-	mov rsi,directory
+	mov rsi,programlocation
 	call os_output
 
 	jmp os_command_line
@@ -286,12 +286,12 @@ ext: ; this is just for testing, and it gets removed when ext2 is ready
 	mov ebx, 0x00990000		; skulls should be red
 	mov [os_Font_Color], ebx
 	mov cl,127
-	mov	BYTE[directory],cl
-	lea rsi,[directory]
+	mov	BYTE[fs_misc],cl
+	lea rsi,[fs_misc]
 	mov cl,1
 	call os_output_chars
-	mov BYTE[directory],10
-	lea rsi,[directory]
+	mov BYTE[fs_misc],10
+	lea rsi,[fs_misc]
 	mov cl,1
 	call os_output_chars
 	mov ebx, 0x0055FF55

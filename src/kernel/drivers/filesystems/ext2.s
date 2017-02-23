@@ -450,6 +450,7 @@ os_ext2_inode_sector_read:
 	push rsi
 	push rcx
 	push r8
+	push r9
 
 	add rdi,ext2_inode.block_pointer
 
@@ -477,6 +478,102 @@ os_ext2_inode_sector_read:
 	mov rdi,r8	; memory to store
 	call readsectors
 
+	pop r9
+	pop r8
+	pop rcx
+	pop rsi
+	pop rax
+	pop rdx
+	pop rdi
+	ret
+
+
+;------------------------------------------------------------------------------
+; read a sector from an inode
+; rax = block address of indirect block
+; rsi = block number to get inside indirect
+; out: rax = block address of target
+os_ext2_indirect_get_block:
+	push rsi
+	push rdi
+	push rcx
+
+	;multiply by 4 because a block address is 32 bit
+	sal rsi,2
+
+	;get sector of block
+	mov ecx,DWORD[fs_blocksectors]
+	mul ecx
+
+	;rax contains sector to read
+	mov ecx,DWORD[fs_blocksectors]; read the whole block
+	xor rdx,rdx	;	disk 0
+	lea rdi,[fs_misc+512]	; memory to store
+	call readsectors ; get the block
+
+	lea rax,[fs_misc+512]
+	add rax,rsi ; arriving at the address of the target block
+
+	pop rcx
+	pop rdi
+	pop rsi
+
+;------------------------------------------------------------------------------
+; read a sector from an inode
+; rdi = memory address of inode structure
+; rsi = sector within inode to read
+; rdx = memory to store
+os_ext2_get_block:
+	push rdi
+	push rdx
+	push rax
+	push rsi
+	push rcx
+	push r8
+	push r9
+
+	add rdi,ext2_inode.block_pointer
+
+	mov r8,rdx
+
+	mov rax,rsi
+	xor rdx,rdx
+	div DWORD[fs_blocksectors]
+
+	mov r9,rdx ; sector in block
+
+	cmp rax,12
+	jae get_block_is_indirect
+
+get_block_is_direct:
+	sal rax,2 ;multiply by 4 (4bytes)
+
+	add rdi,rax ; this should now be the correct pointer (unless its >12)
+	mov eax,DWORD[rdi]
+	jmp get_block_is_address
+
+get_block_is_indirect:
+
+	mov rsi,rax
+	sub rsi,12
+	add rdi,48
+	mov eax,DWORD[rdi] ; should be block pointer 12
+	call os_ext2_indirect_get_block
+	jmp get_block_is_address
+
+get_block_is_address:
+	;eax should now contain the block address
+	;multiply by sectors per block to get sector of block
+	mov ecx,DWORD[fs_blocksectors]
+	mul ecx
+
+	add rax, r9	; sector to read
+	mov ecx, 1	; read 1 sector
+	xor rdx,rdx ; disk 0
+	mov rdi,r8	; memory to store
+	call readsectors
+
+	pop r9
 	pop r8
 	pop rcx
 	pop rsi
@@ -495,14 +592,14 @@ os_ext2_file_load:
 	push rax
 	push rsi
 	push rcx
-	push r8
 
 	mov rcx,[rdi+ext2_inode.n_sectors]
+	mov rsi,rcx
 	xor rsi,rsi ; start reading at sector 0
 
 load_loop:
 
-	call os_ext2_inode_sector_read
+	call os_ext2_get_block
 
 	add rdx,512	; advance memory pointer to next location
 	inc rsi		; advance sector number
@@ -510,7 +607,6 @@ load_loop:
 	jl load_loop; read more if not finished
 
 load_done:
-	pop r8
 	pop rcx
 	pop rsi
 	pop rax
@@ -588,17 +684,6 @@ ri_done:
 	pop rdx
 	pop rdi
 	ret
-
-
-;------------------------------------------------------------------------------
-; basically read the whole file. this is needed for loading executables
-; rdi = inode in memory
-; rdx = location to store
-;
-os_ext2_load_file:
-	mov rcx,[rdi+ext2_inode.n_sectors]
-	mov rbx,[rdi+ext2_inode.block_pointer]
-
 
 ;------------------------------------------------------------------------------
 ; rdi = memory location of inode

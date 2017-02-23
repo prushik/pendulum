@@ -24,6 +24,9 @@ os_file_get_inode:
 ;	mov rax,r14
 ;	jmp os_ext2_search_directory
 
+os_file_inode_read:
+	jmp os_ext2_inode_sector_read
+
 ; -----------------------------------------------------------------------------
 ; os_file_open -- Open a file on disk
 ; IN:	RSI = File name (zero-terminated string)

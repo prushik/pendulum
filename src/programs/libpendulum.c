@@ -27,6 +27,15 @@
 
 #include "libpendulum.h"
 
+/*
+	For the record, the asm constraints here mean the following:
+	* S - rsi
+	* c - rcx
+	* a - rax
+	* D - rdi
+	* d - rdx
+*/
+
 void b_output(const char *str)
 {
 	asm volatile ("call *0x00100010" : : "S"(str)); // Make sure source register (RSI) has the string address (str)
@@ -109,6 +118,13 @@ unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf)
 {
 	unsigned long tlong;
 	asm volatile ("call *0x00100070" : "=a"(tlong) : "D"(inode),"S"(buf));
+	return tlong;
+}
+
+unsigned long b_file_inode_read(void *buf, unsigned long sector, struct kern_ext2_inode *i)
+{
+	unsigned long tlong;
+	asm volatile ("call *0x001000C8" : "=a"(tlong) : "d"(buf),"S"(sector),"D"(i));
 	return tlong;
 }
 

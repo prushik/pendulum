@@ -56,7 +56,7 @@ fs_blocksize:		equ fs_misc				; blocksize in byte
 fs_blocksectors:	equ fs_misc+4			; blocksize in sectors
 fs_desc_table:		equ fs_misc+8			; start of block group descriptor table
 fs_pwd:				equ fs_misc+12			; inode # of current directory
-fs_directory:		equ fs_misc+16
+fs_directory:		equ fs_misc+16			; used for storing directory info (e.g. for searching)
 
 
 sys_ROM:			equ 0x00000000000A0000	; 393216 bytes	0x0A0000 -> 0x0FFFFF
