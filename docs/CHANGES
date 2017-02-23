@@ -1,3 +1,5 @@
+single indirect blocks are readable - 02/22/2017
+
 program loading works (again)! - 04/24/2016
 
 build system contains a rootfs folder which gets copied into the built filesytem

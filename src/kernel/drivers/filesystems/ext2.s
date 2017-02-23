@@ -513,6 +513,7 @@ os_ext2_indirect_get_block:
 
 	lea rax,[fs_misc+512]
 	add rax,rsi ; arriving at the address of the target block
+	mov eax,DWORD[rax];
 
 	pop rcx
 	pop rdi
