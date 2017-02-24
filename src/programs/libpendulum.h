@@ -54,15 +54,14 @@ void b_ethernet_tx(void *mem, unsigned long len);
 unsigned long b_ethernet_rx(void *mem);
 
 unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf);
-//unsigned long b_file_get_inode(unsigned long inode, const unsigned char *name);
 unsigned long b_file_open(unsigned long inode);
 unsigned long b_file_close(unsigned long handle);
-unsigned long b_file_read(unsigned long handle, void *buf, unsigned int count);
+unsigned long b_file_read(void *buf, unsigned long sector, struct kern_ext2_inode *i);
 unsigned long b_file_write(unsigned long handle, const void *buf, unsigned int count);
+unsigned long b_file_stat(const unsigned char *name);
 
 /*
 unsigned long b_file_seek(unsigned long handle, unsigned int offset, unsigned int whence);
-unsigned long b_file_query(const unsigned char *name);
 unsigned long b_file_create(const char *name, unsigned long size);
 unsigned long b_file_delete(const unsigned char *name);
 */

@@ -52,7 +52,7 @@ fs_block_bitmap:	equ 0x0000000000094400	; 512 bytes
 fs_inode_bitmap:	equ 0x0000000000094600	; 512 bytes
 fs_misc:			equ 0x0000000000094800	; 47616 bytes left
 
-fs_blocksize:		equ fs_misc				; blocksize in byte
+fs_blocksize:		equ fs_misc				; blocksize in bytes
 fs_blocksectors:	equ fs_misc+4			; blocksize in sectors
 fs_desc_table:		equ fs_misc+8			; start of block group descriptor table
 fs_pwd:				equ fs_misc+12			; inode # of current directory

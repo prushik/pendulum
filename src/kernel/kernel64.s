@@ -37,12 +37,11 @@ kernel_start:
 	dq os_file_read			; 0x0088
 	dq os_file_write		; 0x0090
 	dq os_file_seek			; 0x0098
-	dq os_file_query		; 0x00A0
+	dq os_file_stat			; 0x00A0
 	dq os_file_create		; 0x00A8
 	dq os_file_delete		; 0x00B0
 	dq os_system_config		; 0x00B8
 	dq os_system_misc		; 0x00C0
-	dq os_file_inode_read	; 0x00C8
 	align 16
 
 start:

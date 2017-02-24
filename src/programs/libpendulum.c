@@ -121,10 +121,10 @@ unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf)
 	return tlong;
 }
 
-unsigned long b_file_inode_read(void *buf, unsigned long sector, struct kern_ext2_inode *i)
+unsigned long b_file_read(void *buf, unsigned long sector, struct kern_ext2_inode *i)
 {
 	unsigned long tlong;
-	asm volatile ("call *0x001000C8" : "=a"(tlong) : "d"(buf),"S"(sector),"D"(i));
+	asm volatile ("call *0x00100088" : "=a"(tlong) : "d"(buf),"S"(sector),"D"(i));
 	return tlong;
 }
 
@@ -139,13 +139,6 @@ unsigned long b_file_close(unsigned long handle)
 {
 	unsigned long tlong = 0;
 	asm volatile ("call *0x00100080" : : "a"(handle));
-	return tlong;
-}
-
-unsigned long b_file_read(unsigned long handle, void *buf, unsigned int count)
-{
-	unsigned long tlong;
-	asm volatile ("call *0x00100088" : "=c"(tlong) : "a"(handle), "D"(buf), "c"(count));
 	return tlong;
 }
 
