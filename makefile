@@ -23,7 +23,7 @@ run: bin/ext2.img
 ext2: src/kernel/kernel64 src/pure64/pure64 src/pure64/ext2_mbr util/bootmap
 	dd if=/dev/zero of=bin/ext2.img bs=1M count=256
 	$(SUDO) mkfs.ext2 -r 0 bin/ext2.img
-	dd if=ext2_mbr of=bin/ext2.img bs=512 conv=notrunc
+	dd if=src/pure64/ext2_mbr of=bin/ext2.img bs=512 conv=notrunc
 	cat src/pure64/pure64 src/kernel/kernel64 > software
 	$(SUDO) mount -o loop bin/ext2.img bin/mp
 	$(SUDO) mv software bin/mp/kernel

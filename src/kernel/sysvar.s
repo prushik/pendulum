@@ -89,7 +89,7 @@ os_NetMAC:				equ os_SystemVariables + 80
 os_HPETAddress:			equ os_SystemVariables + 88
 ahci_base:				equ os_SystemVariables + 96
 os_NetworkCallback:		equ os_SystemVariables + 104
-bmfs_TotalBlocks:		equ os_SystemVariables + 112
+;bmfs_TotalBlocks:		equ os_SystemVariables + 112 ; 8 bytes usable here
 os_KeyboardCallback:	equ os_SystemVariables + 120
 os_ClockCallback:		equ os_SystemVariables + 128
 os_net_TXBytes:			equ os_SystemVariables + 136
