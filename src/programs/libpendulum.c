@@ -25,6 +25,16 @@
 //
 // =============================================================================
 
+#include "libpendulum.h"
+
+/*
+	For the record, the asm constraints here mean the following:
+	* S - rsi
+	* c - rcx
+	* a - rax
+	* D - rdi
+	* d - rdx
+*/
 
 void b_output(const char *str)
 {
@@ -104,10 +114,17 @@ unsigned long b_ethernet_rx(void *mem)
 	return tlong;
 }
 
-unsigned long b_file_get_inode(unsigned long inode, const unsigned char *name)
+unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf)
 {
 	unsigned long tlong;
-	asm volatile ("call *0x00100070" : "=a"(tlong) : "a"(inode),"S"(name));
+	asm volatile ("call *0x00100070" : "=a"(tlong) : "D"(inode),"S"(buf));
+	return tlong;
+}
+
+unsigned long b_file_read(void *buf, unsigned long sector, struct kern_ext2_inode *i)
+{
+	unsigned long tlong;
+	asm volatile ("call *0x00100088" : "=a"(tlong) : "d"(buf),"S"(sector),"D"(i));
 	return tlong;
 }
 
@@ -122,13 +139,6 @@ unsigned long b_file_close(unsigned long handle)
 {
 	unsigned long tlong = 0;
 	asm volatile ("call *0x00100080" : : "a"(handle));
-	return tlong;
-}
-
-unsigned long b_file_read(unsigned long handle, void *buf, unsigned int count)
-{
-	unsigned long tlong;
-	asm volatile ("call *0x00100088" : "=c"(tlong) : "a"(handle), "D"(buf), "c"(count));
 	return tlong;
 }
 

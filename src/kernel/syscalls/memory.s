@@ -159,7 +159,7 @@ memcpy_loop:
 	sub			rdi,1			;point rdi to next address
 	dec			rdx				;decrement count
 	jnz			memcpy_loop		;if count is not zero, continue
-	mov			rax,[rdi]		;put dest into rax for returning
+	mov			rax,rdi			;put dest into rax for returning
 	pop rdx
 	pop rsi
 	pop rdi

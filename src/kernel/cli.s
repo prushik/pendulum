@@ -182,8 +182,10 @@ ls:
 	mov rdi, cli_temp_string
 	mov rsi, rdi
 
-	mov esi,[fs_pwd]
-	call os_ext2_find_inode
+	mov edi,[fs_pwd]			;
+	lea rsi,[os_temp]			; 
+	call os_ext2_read_inode		;
+
 	mov rdi,rax
 	call os_ext2_list_directory
 
@@ -195,8 +197,9 @@ ls:
 	jmp os_command_line
 
 cd:
-	mov esi,[fs_pwd]			;
-	call os_ext2_find_inode		; find inode of pwd (working dir)
+	mov edi,[fs_pwd]			;
+	lea rsi,[programlocation]	; 
+	call os_ext2_read_inode		;
 
 	mov rdi,rax					; save inode structure location
 
@@ -214,8 +217,9 @@ cd:
 	jmp os_command_line
 
 stat:
-	mov esi,[fs_pwd]			;
-	call os_ext2_find_inode		; find inode of pwd (working dir)
+	mov edi,[fs_pwd]			;
+	lea rsi,[os_temp]			; 
+	call os_ext2_read_inode		;
 
 	mov rdi,rax					; save inode structure location
 
@@ -225,8 +229,9 @@ stat:
 
 	call os_ext2_search_directory
 
-	mov rsi,rax
-	call os_ext2_find_inode		; find inode of what we want
+	mov rdi,rax
+	lea rsi,[os_temp]			; 
+	call os_ext2_read_inode		;
 
 	mov rdi,rax
 
@@ -235,8 +240,9 @@ stat:
 	jmp os_command_line
 
 exec:
-	mov esi,[fs_pwd]			;
-	call os_ext2_find_inode		; find inode of pwd (working dir)
+	mov edi,[fs_pwd]			;
+	lea rsi,[programlocation]	;
+	call os_ext2_read_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
 
@@ -246,8 +252,9 @@ exec:
 
 	call os_ext2_search_directory
 
-	mov rsi,rax
-	call os_ext2_find_inode		; find inode of what we want
+	mov rdi,rax
+	lea rsi,[os_temp]			; 
+	call os_ext2_read_inode		;
 
 	mov rdi,rax
 	lea rdx,[programlocation]
@@ -258,8 +265,9 @@ exec:
 	jmp os_command_line
 
 cat:
-	mov esi,[fs_pwd]			;
-	call os_ext2_find_inode		; find inode of pwd (working dir)
+	mov edi,[fs_pwd]			;
+	lea rsi,[programlocation]	;
+	call os_ext2_read_inode		; find inode of pwd (working dir)
 
 	mov rdi,rax					; save inode structure location
 
@@ -269,14 +277,15 @@ cat:
 
 	call os_ext2_search_directory
 
-	mov rsi,rax
-	call os_ext2_find_inode		; find inode of what we want
+	mov rdi,rax
+	lea rsi,[os_temp]	; 
+	call os_ext2_read_inode		; find inode of what we want
 
 	mov rdi,rax
-	mov rdx,directory
+	lea rdx,[programlocation]
 	call os_ext2_file_load
 
-	mov rsi,directory
+	mov rsi,programlocation
 	call os_output
 
 	jmp os_command_line
@@ -285,12 +294,12 @@ ext: ; this is just for testing, and it gets removed when ext2 is ready
 	mov ebx, 0x00990000		; skulls should be red
 	mov [os_Font_Color], ebx
 	mov cl,127
-	mov	BYTE[directory],cl
-	lea rsi,[directory]
+	mov	BYTE[fs_misc],cl
+	lea rsi,[fs_misc]
 	mov cl,1
 	call os_output_chars
-	mov BYTE[directory],10
-	lea rsi,[directory]
+	mov BYTE[fs_misc],10
+	lea rsi,[fs_misc]
 	mov cl,1
 	call os_output_chars
 	mov ebx, 0x0055FF55
@@ -303,8 +312,8 @@ ext: ; this is just for testing, and it gets removed when ext2 is ready
 	mov rdi,0
 ;	call write_decimal
 	call show_super
-	mov rsi,2
-	call os_ext2_find_inode
+;	mov rsi,2
+;	call os_ext2_find_inode
 	jmp os_command_line
 
 align 16

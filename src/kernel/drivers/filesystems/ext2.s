@@ -5,78 +5,6 @@
 ; EXT2 Functions
 ; =============================================================================
 
-struc ext2_superblock
-	.n_inodes			resd 1
-	.n_blocks			resd 1
-	.n_reserved_block	resd 1
-	.n_unalloc_blocks	resd 1
-	.n_unalloc_inodes	resd 1
-	.superuser_block	resd 1
-	.log_block_size		resd 1
-	.log_fragment_size	resd 1
-	.n_blocks_group		resd 1
-	.n_frgments_group	resd 1
-	.n_inodes_group		resd 1
-	.last_mount			resd 1
-	.last_write			resd 1
-
-	.n_mounts			resw 1
-	.n_max_mounts		resw 1
-	.signature			resw 1
-	.state				resw 1
-	.error_proc			resw 1
-	.version_minor		resw 1
-
-	.check_time			resd 1
-	.max_check_time		resd 1
-	.os_created			resd 1
-	.version_major		resd 1
-
-	.uid_reserved		resw 1
-	.gid_reserved		resw 1
-endstruc
-
-struc ext2_descriptor
-	.block_use_bitmap	resd 1
-	.inode_use_bitmap	resd 1
-	.inode_table		resd 1
-	.n_blocks			resw 1
-	.n_inodes			resw 1
-	.n_directories		resw 1
-endstruc
-
-struc ext2_inode
-	.type				resw 1
-	.uid				resw 1
-	.l_size				resd 1
-	.a_time				resd 1
-	.c_time				resd 1
-	.m_time				resd 1
-	.d_time				resd 1
-	.gid				resw 1
-	.n_links			resw 1
-	.n_sectors			resd 1
-	.flags				resd 1
-	.os_reserved1		resd 1
-	.block_pointer		resd 12
-	.single_indirect	resd 1
-	.double_indirect	resd 1
-	.triple_indirect	resd 1
-	.generation			resd 1
-	.xattr				resd 1
-	.h_size				resd 1
-	.frag_block			resd 1
-	.os_reserved2		resd 3
-endstruc
-
-struc ext2_directory
-	.inode				resd 1
-	.size				resw 1
-	.name_size			resb 1
-	.type				resb 1
-	.name				resb 1 ; this is actually ext2_directory.name_size bytes wide
-endstruc
-
 align 16
 db 'DEBUG: EXT2     '
 align 16
@@ -159,48 +87,69 @@ show_super:
 	pop rsi
 	ret
 
+; IN:	rdi = inode number
+; OUT:	rax = group number of inode
+;		rdx = inode offset in group
+os_ext2_inode_groups:
+	; rax = group of inode = (inode_number-1) / inodes_per_group
+	; rdx = inode in group = (inode_number-1) % inodes_per_group
+	sub rdi,1	; inode numbers start at 1
+	mov rax,rdi
+	xor edx,edx
+	div DWORD [fs_superblock+ext2_superblock.n_inodes_group];
+	ret
+
+; IN:	rax = group number
+; OUT:	rax = sector number of group
+;		rdx = group offset in sector
+os_ext2_group_sectors:
+	; rax = sector of group = group/16
+	; rdx = group in sector = group%16
+	xor	edx, edx
+	mov rdi,16
+	div edi		; 16 is 512/32 = number of groups per sector
+	add eax,DWORD[fs_desc_table] ; rax = sector containing blockgroup descriptor
+	ret
+
 ;------------------------------------------------------------------------------
-; IN:	rsi = inode number
+; IN:	rdi = inode number
+;		rsi = memory address to store inode struct
 ; OUT:	rax = inode address
-; 
 ;
-os_ext2_find_inode:
+os_ext2_read_inode:
 	push rsi
 	push rdx
 	push rdi
 	push rcx
 	push r8
+	push r9
 
-	; rax = group of inode = (inode_number-1) / inodes_per_group
-	; rdx = inode in group = (inode_number-1) % inodes_per_group
-	sub	rsi,1
-	mov rax, rsi
-	xor	edx, edx
-	div DWORD [fs_superblock+ext2_superblock.n_inodes_group];
+	mov r9,rsi
+
+	; rax = group of inode
+	; rdx = inode in group
+	call os_ext2_inode_groups
 
 	mov rsi,rdx ; save inodeN_in_group
 
-	; rax = sector of group = group/16
-	; rdx = group in sector = group%16
+	; rax = sector of group
+	; rdx = group in sector
 	; rsi = inode in group
-	xor	edx, edx
-	mov rdi,16
-	div edi		; 16 is 512/32 = number of groups per sector
+	call os_ext2_group_sectors
 
-	add eax,DWORD[fs_desc_table] ; rax = sector containing blockgroup descriptor
+	mov r8,rdx		;save group in sector
 
 	; read sector containing group
 	; rax = sector of n
 	mov rcx,1		; one sector
-	mov r8,rdx
 	xor rdx,rdx		; disk 0
 	lea rdi,[fs_descriptor]
-	call readsectors
+	call readsectors	;readsectors(rax sector_no,rcx n_sectors,rdx disk_no,rdi *buffer)
 
 	; rax = memory location of correct group descriptor = group in sector *32 + descriptor
 	; rsi = inode in group
-	mov eax,32 
-	mul r8d
+	shl r8,5
+	mov rax,r8
 
 	add rax,fs_descriptor
 
@@ -213,7 +162,6 @@ os_ext2_find_inode:
 
 	;need to divide inode in group by 4(inodes per sector)
 	;then get that sector and use remainder for inode in sector
-	;but as long as we only need inodes 1,2,3, and 4, we can skip this
 	mov rcx,rax
 	mov rax,r8
 	mov rsi,4
@@ -221,7 +169,7 @@ os_ext2_find_inode:
 	div esi
 	add rax,rcx
 	mov r8,rdx
-	; edx should be inode in sector
+	; rdx should be inode in sector
 
 	mov rcx,1
 	xor rdx,rdx
@@ -229,22 +177,18 @@ os_ext2_find_inode:
 	call readsectors
 
 	; multiply by size of inode struct to get the correct inode
-	mov rdx,r8
-	mov eax,128
-	mul r8
+	shl r8,7
+	mov rax,r8
 
 	add rax,fs_pwd_inode
 
-;	push rsi
-;	push rax
-;	push rdx
-;	mov rsi,rax
-;	mov esi,DWORD[rax+ext2_inode.block_pointer]
-;	call write_decimal
-;	pop rdx
-;	pop rax
-;	pop rsi
+	; copy to user supplied struct
+	mov rdi,r9
+	mov rsi,rax
+	mov rdx,128
+	call os_memcpy
 
+	pop r9
 	pop r8
 	pop rcx
 	pop rdi
@@ -349,6 +293,7 @@ os_ext2_inode_sector_read:
 	push rsi
 	push rcx
 	push r8
+	push r9
 
 	add rdi,ext2_inode.block_pointer
 
@@ -376,6 +321,125 @@ os_ext2_inode_sector_read:
 	mov rdi,r8	; memory to store
 	call readsectors
 
+	pop r9
+	pop r8
+	pop rcx
+	pop rsi
+	pop rax
+	pop rdx
+	pop rdi
+	ret
+
+
+;------------------------------------------------------------------------------
+; read a sector from an inode
+; rax = block address of indirect block
+; rsi = block number to get inside indirect
+; out: rax = block address of target
+os_ext2_indirect_get_block:
+	push rsi
+	push rdi
+	push rcx
+
+	;multiply by 4 because a block address is 32 bit
+	sal rsi,2
+
+	;get sector of block
+	mov ecx,DWORD[fs_blocksectors]
+	mul ecx
+
+	;rax contains sector to read
+	mov ecx,DWORD[fs_blocksectors]; read the whole block
+	xor rdx,rdx	;	disk 0
+	lea rdi,[fs_misc+512] ; memory to store
+	call readsectors ; get the block
+
+	lea rax,[fs_misc+512]
+	add rax,rsi ; arriving at the address of the target block
+	mov eax,DWORD[rax];
+
+	pop rcx
+	pop rdi
+	pop rsi
+
+;------------------------------------------------------------------------------
+; read a sector from an inode
+; rdi = memory address of inode structure
+; rsi = sector within inode to read
+; rdx = memory to store
+os_ext2_get_block:
+	push rdi
+	push rdx
+	push rax
+	push rsi
+	push rcx
+	push r8
+	push r9
+
+	add rdi,ext2_inode.block_pointer
+
+	mov r8,rdx
+
+	mov rax,rsi
+	xor rdx,rdx
+	div DWORD[fs_blocksectors]
+
+	mov r9,rdx ; sector in block
+
+	cmp rax,12
+	jae .block_is_indirect
+
+.block_is_direct:
+	sal rax,2 ;multiply by 4 (4bytes)
+
+	add rdi,rax ; this should now be the correct pointer (unless its >12)
+	mov eax,DWORD[rdi]
+	jmp .block_is_address
+
+.block_is_indirect:
+
+	sub rax,12
+
+;	mov esi,DWORD[fs_blocksize] ; blocksize
+;	sar rsi,5
+
+;	cmp rax,rsi
+;	jae .block_is_double_indirect
+
+	mov rsi,rax
+	add rdi,48
+	mov eax,DWORD[rdi] ; should be block pointer 12 (single indirect)
+	call os_ext2_indirect_get_block
+	jmp .block_is_address
+
+.block_is_double_indirect:
+
+	sub rax,rsi ;rsi contains the number of block pointers per indirect block
+
+	; need to divide rax by (blocksize/4) and keep remainder
+
+	mov rsi,rax
+	add rdi,52
+	mov eax,DWORD[rdi] ; should be block pointer 12+1 (double indirect)
+	call os_ext2_indirect_get_block
+
+
+	jmp .block_is_address
+
+
+.block_is_address:
+	;eax should now contain the block address
+	;multiply by sectors per block to get sector of block
+	mov ecx,DWORD[fs_blocksectors]
+	mul ecx
+
+	add rax, r9	; sector to read
+	mov ecx, 1	; read 1 sector
+	xor rdx,rdx ; disk 0
+	mov rdi,r8	; memory to store
+	call readsectors
+
+	pop r9
 	pop r8
 	pop rcx
 	pop rsi
@@ -394,110 +458,27 @@ os_ext2_file_load:
 	push rax
 	push rsi
 	push rcx
-	push r8
 
 	mov rcx,[rdi+ext2_inode.n_sectors]
+	mov rsi,rcx
 	xor rsi,rsi ; start reading at sector 0
 
-load_loop:
+.load_loop:
 
-	call os_ext2_inode_sector_read
+	call os_ext2_get_block
 
 	add rdx,512	; advance memory pointer to next location
 	inc rsi		; advance sector number
 	cmp rsi,rcx ; make sure we still have data to read
-	jl load_loop; read more if not finished
+	jl .load_loop; read more if not finished
 
-load_done:
-	pop r8
+.load_done:
 	pop rcx
 	pop rsi
 	pop rax
 	pop rdx
 	pop rdi
 	ret
-
-;------------------------------------------------------------------------------
-; read data from an inode
-; rdi = memory address of inode structure
-; rsi = offset of file to read
-; rdx = memory to store
-; rcx = bytes to read
-os_ext2_inode_data_read:
-	push rdi
-	push rdx
-	push rax
-	push rsi
-	push rcx
-	push r8
-
-	mov r8,rdx
-	mov r9,rdi
-
-	mov rax,rsi
-	xor rdx,rdx
-	div DWORD [fs_blocksize] ;divide offset by blocksize to get start block
-	; rdx = start offset in block | rax = start block of inode
-
-	mov r10,rdx
-	mov rsi,rax
-
-	lea rdx,[fs_directory]
-	call os_ext2_inode_block_read
-
-	add rdx,r10 ; now rdx should be the place where we wanted data to start
-	mov rdi,rsi
-	mov rsi,rdx
-	mov rdx,[fs_blocksize]
-	sub rdx,r10
-	call os_memcpy ; copy the data to caller supplied buffer
-
-	add r10,rax ; r10 is now the next location to read to!
-
-	inc rdi ; next block
-
-;	sub rcx
-	jz ri_done
-
-	
-
-	mov eax,4
-	mul esi
-
-	add rdi,rax ; this should now be the correct pointer
-	mov eax,DWORD[rdi]
-
-	;eax should now contain the block address
-	mov ecx,DWORD[fs_blocksectors]
-	mul ecx
-
-	mov rdi,r8
-
-	;eax should now contain the sector of the block
-	;rcx should already be number of sectors
-	xor rdx,rdx
-	; rdi should already be set
-	call readsectors
-
-ri_done:
-	pop r8
-	pop rcx
-	pop rsi
-	pop rax
-	pop rdx
-	pop rdi
-	ret
-
-
-;------------------------------------------------------------------------------
-; basically read the whole file. this is needed for loading executables
-; rdi = inode in memory
-; rdx = location to store
-;
-os_ext2_load_file:
-	mov rcx,[rdi+ext2_inode.n_sectors]
-	mov rbx,[rdi+ext2_inode.block_pointer]
-
 
 ;------------------------------------------------------------------------------
 ; rdi = memory location of inode
@@ -749,33 +730,6 @@ os_ext2_file_seek:
 ; -----------------------------------------------------------------------------
 
 
-; -----------------------------------------------------------------------------
-; os_ext2_file_internal_query -- Search for a file name and return information
-; IN:	RSI = Pointer to file name
-; OUT:	RAX = Staring block number
-;	RBX = Offset to entry
-;	RCX = File size in bytes
-;	RDX = Reserved blocks
-;	Carry set if not found. If carry is set then ignore returned values
-os_ext2_file_internal_query:
-	push rdi
-
-	pop rdi
-	ret
-; -----------------------------------------------------------------------------
-
-
-; -----------------------------------------------------------------------------
-; os_ext2_file_query -- Search for a file name and return information
-; IN:	RSI = Pointer to file name
-; OUT:	RCX = File size in bytes
-;	Carry set if not found. If carry is set then ignore returned values
-os_ext2_file_query:
-	push rdi
-
-	pop rdi
-	ret
-; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
