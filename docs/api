@@ -22,6 +22,7 @@ Version 0.7 - Feburary, 2017
 	- b\_ethernet\_tx
 	- b\_ethernet\_rx
 6. File
+	- b\_file\_get\_inode
 	- b\_file\_open
 	- b\_file\_close
 	- b\_file\_read
@@ -281,9 +282,22 @@ Notes: BareMetal OS does not keep a buffer of received packets. This means that 
 NOTE: Pendulum handles files differently than BareMetal does.
 
 
+### b\_file\_get\_inode
+
+Reads a file's inode structure. Pendulum generally uses the inode structure
+in place of a file descriptor or file handle.
+
+Assembly Registers:
+
+	 IN:	RSI = Pointer to inode structure
+			RDI = Inode number
+	OUT:	RAX
+			All other registers preserved
+
 ### b\_file\_open
 
 Open a file
+NOTE: This is unusued. See b\_file\_get\_inode for a similar function
 
 Assembly Registers:
 
@@ -304,6 +318,7 @@ Assembly Example:
 ### b\_file\_close
 
 Close a file
+NOTE: This is unused and unneeded. Pendulum does not require files to be closed.
 
 Assembly Registers:
 
@@ -323,11 +338,10 @@ Read a number of bytes from a file to memory
 
 Assembly Registers:
 
-	 IN:	RAX = File I/O handler number
-			RCX = Number of bytes to read
-			RDI = Destination memory address
-	OUT:	RCX = Number of bytes read
-			All other registers preserved
+	 IN:	RDI = Destination memory address
+			RSI = Number of sectors to read (512 bytes)
+			RDX = Pointer to inode struct
+	OUT:	All other registers preserved
 
 
 ### b\_file\_write

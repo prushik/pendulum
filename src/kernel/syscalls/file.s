@@ -27,7 +27,7 @@ os_file_read:
 ; OUT:	RAX = File I/O handler number, 0 on error
 ;	All other registers preserved
 os_file_open:
-	jmp os_ext2_find_inode
+	jmp os_ext2_read_inode
 ; -----------------------------------------------------------------------------
 
 

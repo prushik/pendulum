@@ -155,12 +155,77 @@ os_debug_dump_reg_stage:	db 0x00
 
 ; File System
 ; Define the structure of a directory entry
-struc	BMFS_DirEnt
-	.filename	resb 32
-	.start		resq 1	; starting block index
-	.reserved	resq 1	; number of blocks reserved
-	.size		resq 1	; number of bytes
-	.unused		resq 1
+
+struc ext2_superblock
+	.n_inodes			resd 1
+	.n_blocks			resd 1
+	.n_reserved_block	resd 1
+	.n_unalloc_blocks	resd 1
+	.n_unalloc_inodes	resd 1
+	.superuser_block	resd 1
+	.log_block_size		resd 1
+	.log_fragment_size	resd 1
+	.n_blocks_group		resd 1
+	.n_frgments_group	resd 1
+	.n_inodes_group		resd 1
+	.last_mount			resd 1
+	.last_write			resd 1
+
+	.n_mounts			resw 1
+	.n_max_mounts		resw 1
+	.signature			resw 1
+	.state				resw 1
+	.error_proc			resw 1
+	.version_minor		resw 1
+
+	.check_time			resd 1
+	.max_check_time		resd 1
+	.os_created			resd 1
+	.version_major		resd 1
+
+	.uid_reserved		resw 1
+	.gid_reserved		resw 1
+endstruc
+
+struc ext2_descriptor
+	.block_use_bitmap	resd 1
+	.inode_use_bitmap	resd 1
+	.inode_table		resd 1
+	.n_blocks			resw 1
+	.n_inodes			resw 1
+	.n_directories		resw 1
+endstruc
+
+struc ext2_inode
+	.type				resw 1
+	.uid				resw 1
+	.l_size				resd 1
+	.a_time				resd 1
+	.c_time				resd 1
+	.m_time				resd 1
+	.d_time				resd 1
+	.gid				resw 1
+	.n_links			resw 1
+	.n_sectors			resd 1
+	.flags				resd 1
+	.os_reserved1		resd 1
+	.block_pointer		resd 12
+	.single_indirect	resd 1
+	.double_indirect	resd 1
+	.triple_indirect	resd 1
+	.generation			resd 1
+	.xattr				resd 1
+	.h_size				resd 1
+	.frag_block			resd 1
+	.os_reserved2		resd 3
+endstruc
+
+struc ext2_directory
+	.inode				resd 1
+	.size				resw 1
+	.name_size			resb 1
+	.type				resb 1
+	.name				resb 1 ; this is actually ext2_directory.name_size bytes wide
 endstruc
 
 keylayoutlower:
