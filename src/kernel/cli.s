@@ -251,6 +251,9 @@ exec:
 	call os_system_config		; argv[0]
 
 	call os_ext2_search_directory
+	
+	test rax,rax
+	jz	.not_found
 
 	mov rdi,rax
 	lea rsi,[os_temp]			; 
@@ -261,6 +264,12 @@ exec:
 	call os_ext2_file_load
 
 	jmp programlocation
+	jmp os_command_line
+
+.not_found
+	; print error here
+	lea	rsi,[not_found_msg]
+	call os_output
 
 	jmp os_command_line
 

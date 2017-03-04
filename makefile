@@ -1,7 +1,7 @@
 #AS=nasm
-AS=yasm
-ASFLAGS=
-SUDO=sudo 
+AS ?= yasm
+ASFLAGS ?=
+SUDO ?= sudo 
 
 all: src/pure64/pure64 src/kernel/kernel64
 
