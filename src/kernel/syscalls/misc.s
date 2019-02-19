@@ -81,6 +81,8 @@ os_system_config:
 	je os_system_config_clockcallback_get
 	cmp rdx, 6
 	je os_system_config_clockcallback_set
+	cmp rdx, 7
+	je os_system_config_pwd
 	cmp rdx, 20
 	je os_system_config_video_base
 	cmp rdx, 21
@@ -95,6 +97,10 @@ os_system_config:
 
 os_system_config_timecounter:
 	mov rax, [os_ClockCounter]	; Grab the timer counter value. It increments 8 times a second
+	ret
+
+os_system_config_pwd:
+	mov rax, [fs_pwd]	; return inode of pwd
 	ret
 
 os_system_config_argc:

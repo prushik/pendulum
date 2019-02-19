@@ -53,6 +53,7 @@ unsigned long b_mem_release(unsigned long *mem, unsigned long nbr);
 void b_ethernet_tx(void *mem, unsigned long len);
 unsigned long b_ethernet_rx(void *mem);
 
+unsigned long b_file_search(const char *fname, unsigned long rel_inode);
 unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf);
 unsigned long b_file_open(unsigned long inode);
 unsigned long b_file_close(unsigned long handle);
@@ -78,6 +79,7 @@ void b_system_misc(unsigned long function, void* var1, void* var2);
 #define networkcallback_set 4
 #define clockcallback_get 5
 #define clockcallback_set 6
+#define config_pwd 6
 #define statusbar 10
 
 

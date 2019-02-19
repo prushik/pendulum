@@ -2,11 +2,11 @@
 // BareMetal -- a 64-bit OS written in Assembly for x86-64 systems
 // Copyright (C) 2008-2016 Return Infinity -- see LICENSE.TXT
 //
-// The BareMetal OS C/C++ library code.
+// The Pendulum C library code.
 //
 // Version 2.0
 //
-// This allows for a C/C++ program to access OS functions available in BareMetal OS
+// This allows for a C/C++ program to access OS functions available in Pendulum
 //
 //
 // Linux compile:
@@ -16,12 +16,6 @@
 // gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o yourapp.o yourapp.c
 // Link:
 // ld -T app.ld -o yourapp.app yourapp.o libBareMetal.o
-//
-//
-// Windows compile:
-//
-// gcc -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o yourapp.o yourapp.c libBareMetal.c -Ttext=0x200000
-// objcopy -O binary yourapp.o yourapp.app
 //
 // =============================================================================
 
@@ -117,7 +111,7 @@ unsigned long b_ethernet_rx(void *mem)
 unsigned long b_file_get_inode(unsigned long inode, struct kern_ext2_inode *buf)
 {
 	unsigned long tlong;
-	asm volatile ("call *0x00100070" : "=a"(tlong) : "D"(inode),"S"(buf));
+	asm volatile ("call *0x00100070" : "=a"(tlong) : "S"(inode),"D"(buf));
 	return tlong;
 }
 
@@ -135,12 +129,19 @@ unsigned long b_file_open(unsigned long inode)
 	return tlong;
 }
 
-unsigned long b_file_close(unsigned long handle)
+unsigned long b_file_search(const char *fname, unsigned long rel_inode)
 {
-	unsigned long tlong = 0;
-	asm volatile ("call *0x00100080" : : "a"(handle));
+	unsigned long tlong;
+	asm volatile ("call *0x00100078" : "=a"(tlong) : "a"(fname), "D"(rel_inode));
 	return tlong;
 }
+
+//unsigned long b_file_close(unsigned long handle)
+//{
+//	unsigned long tlong = 0;
+//	asm volatile ("call *0x00100080" : : "a"(handle));
+//	return tlong;
+//}
 
 unsigned long b_file_write(unsigned long handle, const void *buf, unsigned int count)
 {

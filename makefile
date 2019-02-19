@@ -1,14 +1,14 @@
-#AS=nasm
+#AS ?= nasm
 AS ?= yasm
 ASFLAGS ?=
 SUDO ?= sudo 
 
 all: src/pure64/pure64 src/kernel/kernel64
 
-src/kernel/kernel64: 
+src/kernel/kernel64:
 	make -C src/kernel
 
-src/pure64/pure64: 
+src/pure64/pure64:
 	make -C src/pure64
 
 util/bootmap:
@@ -25,6 +25,7 @@ ext2: src/kernel/kernel64 src/pure64/pure64 src/pure64/ext2_mbr util/bootmap
 	$(SUDO) mkfs.ext2 -r 0 bin/ext2.img
 	dd if=src/pure64/ext2_mbr of=bin/ext2.img bs=512 conv=notrunc
 	cat src/pure64/pure64 src/kernel/kernel64 > software
+	mkdir -p bin/mp
 	$(SUDO) mount -o loop bin/ext2.img bin/mp
 	$(SUDO) mv software bin/mp/kernel
 	$(SUDO) util/bootmap bin/mp/kernel map
@@ -32,20 +33,6 @@ ext2: src/kernel/kernel64 src/pure64/pure64 src/pure64/ext2_mbr util/bootmap
 	$(SUDO) umount bin/mp
 	$(SUDO) chmod 666 map
 	dd if=map of=bin/ext2.img bs=512 seek=1 conv=notrunc
-
-#image: bmfs_mbr pure64 kernel64 format
-#	cat pure64 kernel64 > software
-#	dd if=software of=bin/bmfs.img bs=512 seek=16 conv=notrunc
-#	rm software
-
-#format: bmfs
-#	dd if=/dev/zero of=bin/bmfs.img bs=1M count=256
-#	./bmfs bin/bmfs.img format /force
-#	dd if=bmfs_mbr of=bin/bmfs.img bs=512 conv=notrunc
-
-#bmfs:
-#	make -C src/bmfs
-#	cp src/bmfs/src/bmfs .
 
 clean:
 	make -C src/kernel clean

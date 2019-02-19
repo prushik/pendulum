@@ -1,0 +1,12 @@
+pure64
+map
+kernel
+bin/kernel
+bin/ext2.img
+bin/cat
+src/kernel/kernel64
+src/pure64/pure64
+src/pure64/ext2_mbr
+util/bootmap
+*.o
+src/*/*.o

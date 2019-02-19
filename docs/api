@@ -430,6 +430,8 @@ Currently the following functions are supported:
 	- get the current clockcallback entrypoint
  - 6: clockcallback_set
 	- set the current clockcallback entrypoint
+ - 7: get_pwd_inode
+	- get the inode number of current working directory
  - 20: video_base
 	- get the video base address
  - 21: video_x

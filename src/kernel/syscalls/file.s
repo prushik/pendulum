@@ -14,6 +14,8 @@ align 16
 db 'DEBUG: FILESYS  '
 align 16
 
+os_file_search:
+	jmp os_ext2_search_directory
 
 os_file_get_inode:
 	jmp os_ext2_read_inode

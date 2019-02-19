@@ -5,16 +5,11 @@
 //
 // GCC (Tested with 4.5.0)
 // gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o helloc.o helloc.c
-// gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o libBareMetal.o libBareMetal.c
-// ld -T app.ld -o helloc.app helloc.o libBareMetal.o
-//
-// Clang (Tested with 2.7)
-// clang -c -mno-red-zone -o libBareMetal.o libBareMetal.c
-// clang -c -mno-red-zone -o helloc.o helloc.c
-// ld -T app.ld -o helloc.app helloc.o libBareMetal.o
+// gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o libpendulum.o libpendulum.c
+// ld -T app.ld -o helloc.app helloc.o libpendulum.o
 
 
-#include "libBareMetal.h"
+#include "libpendulum.h"
 
 int main()
 {
@@ -24,13 +19,24 @@ int main()
 	for (i=0;i<argc;i++)
 		argv[i] = b_system_config(2, i);
 
-	int fd = b_file_open(argv[1]);
+	b_output_chars("Opening file: ", 14);
+	b_output(argv[1]);
+
+	struct kern_ext2_inode fi;
+
+	int fd = b_file_search(argv[1], 2); // 2 is the ext2 root
+	b_file_get_inode(fd, &fi);
+
+	char secs = '0'+fi.n_sectors;
+	b_output_chars("\n\n\nfile sectors: ", 17);
+	b_output_chars(&secs, 1);
+	b_output_chars("\n", 1);
 
 	char buffer[2097152];
 	int len;
 //	do
 //	{
-		len = b_file_read(fd,buffer,2097151);
+//		len = b_file_read(fd,buffer,2097151);
 //		b_output_chars(buffer,len);
 //		b_file_seek(fd,len,1);
 //	}
@@ -38,8 +44,8 @@ int main()
 
 	b_file_close(fd);
 
-	if (len==512)
-		b_output("READ 2mb\n");
+//	if (len==512)
+//		b_output("READ 2mb\n");
 
 //	b_output(argv[0]);
 	b_output("\n");

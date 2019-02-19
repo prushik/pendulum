@@ -2,7 +2,7 @@
 ; BareMetal -- a 64-bit OS written in Assembly for x86-64 systems
 ; Copyright (C) 2008-2016 Return Infinity -- see LICENSE.TXT
 ;
-; The BareMetal OS kernel. Assemble with NASM
+; The Pendulum kernel. Assemble with YASM
 ; =============================================================================
 
 
@@ -33,7 +33,7 @@ kernel_start:
 	dq os_ethernet_rx		; 0x0068
 	dq os_file_get_inode	; 0x0070
 	dq os_file_open			; 0x0078
-	dq os_file_close		; 0x0080
+	dq os_file_search		; 0x0080
 	dq os_file_read			; 0x0088
 	dq os_file_write		; 0x0090
 	dq os_file_seek			; 0x0098

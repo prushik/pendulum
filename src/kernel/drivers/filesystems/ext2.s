@@ -1,6 +1,6 @@
 ; =============================================================================
 ; Pendulum -- a 64-bit exokernel OS
-; Copyright (C) 2016 BetterOS.org -- see LICENSE.TXT
+; Copyright (C) 2016-2019 BetterOS.org -- see LICENSE.TXT
 ;
 ; EXT2 Functions
 ; =============================================================================
